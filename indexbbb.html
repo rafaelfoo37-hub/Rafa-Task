@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Rafael's Task</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --cream:#F5F2E8;--navy:#1B2D5B;--fade:rgba(27,45,91,0.12);
+  --amber:#B45309;--amber-bg:#FEF3C7;
+  --green:#2E7D52;--green-bg:#E8F5EE;
+  --red:#991b1b;
+  --mono:'DM Mono',monospace;--serif:'Playfair Display',serif;
+}
+html,body{min-height:100%;background:var(--cream);font-family:var(--mono);color:var(--navy);-webkit-text-size-adjust:100%;}
+.app{min-height:100vh;display:flex;flex-direction:column;}
+
+/* HERO */
+.hero{text-align:center;padding:1.2rem 1rem 1rem;border-bottom:1px solid var(--fade);}
+.hero h1{font-family:var(--serif);color:var(--navy);line-height:1.05;}
+.script{font-style:italic;font-weight:400;font-size:clamp(3rem,10vw,4.5rem);display:block;}
+.blk{font-style:normal;font-weight:700;font-size:clamp(3.5rem,12vw,5.5rem);display:block;letter-spacing:-.02em;}
+.prog-wrap{max-width:480px;margin:.7rem auto 0;}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.prog-bar{height:4px;background:var(--fade);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--navy);border-radius:2px;transition:width .3s;}
+
+/* PAGE NAV */
+.page-nav{display:flex;align-items:center;justify-content:space-between;padding:.5rem .8rem;border-bottom:1px solid var(--fade);gap:.4rem;}
+.nav-btn{background:none;border:1.5px solid var(--navy);color:var(--navy);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:0 12px;border-radius:4px;cursor:pointer;height:38px;min-width:58px;}
+.nav-btn:active{background:var(--navy);color:var(--cream);}
+.nav-btn:disabled{opacity:.25;pointer-events:none;}
+.tabs-wrap{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center;flex:1;}
+
+/* page tab with delete */
+.tab-group{display:flex;align-items:center;border:1.5px solid var(--fade);border-radius:4px;overflow:hidden;height:36px;}
+.tab-group.on{border-color:var(--navy);background:var(--navy);}
+.tab{padding:0 10px;height:100%;font-size:11px;font-family:var(--mono);cursor:pointer;display:flex;align-items:center;user-select:none;background:none;border:none;color:var(--navy);}
+.tab-group.on .tab{color:var(--cream);}
+.tab-del{width:26px;height:100%;font-size:14px;font-family:var(--mono);cursor:pointer;display:flex;align-items:center;justify-content:center;background:none;border:none;border-left:1px solid rgba(27,45,91,.15);color:rgba(27,45,91,.35);padding:0;}
+.tab-group.on .tab-del{border-left-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6);}
+.tab-del:active{background:rgba(27,45,91,.1);}
+.tab-group.on .tab-del:active{background:rgba(255,255,255,.15);}
+
+.add-pg-btn{background:none;border:1.5px dashed rgba(27,45,91,.25);color:var(--navy);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:0 10px;border-radius:4px;cursor:pointer;height:36px;white-space:nowrap;}
+.add-pg-btn:active{border-style:solid;border-color:var(--navy);}
+
+/* LEGEND */
+.legend{display:flex;gap:12px;justify-content:center;align-items:center;padding:.5rem 1rem;border-bottom:1px solid var(--fade);flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;}
+.pip{width:10px;height:10px;border-radius:50%;border:1.5px solid;flex-shrink:0;}
+.pip-ns{border-color:rgba(27,45,91,.3);}
+.pip-wip{border-color:var(--amber);background:var(--amber-bg);}
+.pip-done{border-color:var(--green);background:var(--green-bg);}
+
+/* TABLE */
+.tbl-wrap{flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 .4rem 3rem;}
+table{width:100%;max-width:700px;margin:1rem auto 0;border-collapse:collapse;}
+thead th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 3px;color:var(--navy);border-bottom:1.5px solid var(--navy);font-weight:500;text-align:center;}
+thead th:first-child{text-align:left;padding-left:8px;width:38%;}
+tbody tr{border-bottom:1px solid var(--fade);}
+tbody tr:last-child{border-bottom:none;}
+.t-name{font-size:13px;padding:11px 6px;vertical-align:top;}
+.t-row{display:flex;align-items:center;gap:2px;}
+.t-text{flex:1;min-width:0;word-break:break-word;line-height:1.4;padding-top:2px;font-size:16px;font-weight:600;}
+
+/* icon buttons */
+.ico{background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;flex-shrink:0;font-size:15px;}
+.ico:active{background:var(--fade);}
+.ico.due-ico{opacity:.2;color:var(--navy);}
+.ico.due-ico.set{opacity:.5;}
+.ico.due-ico.late{opacity:1;color:var(--red);}
+.ico.del-ico{opacity:.2;color:var(--navy);font-size:18px;}
+.ico.del-ico:active{opacity:.7;}
+
+.due-chip{font-size:10px;letter-spacing:.04em;color:rgba(27,45,91,.45);margin-top:2px;padding-left:2px;}
+.due-chip.late{color:var(--red);}
+
+.dp-wrap{margin-top:5px;display:none;align-items:center;gap:6px;}
+.dp-wrap.open{display:flex;}
+.dp-inp{font-family:var(--mono);font-size:14px;color:var(--navy);border:1px solid var(--fade);border-radius:4px;background:var(--cream);padding:8px;height:42px;max-width:165px;width:100%;outline:none;}
+.dp-clear{background:none;border:none;font-size:20px;cursor:pointer;color:var(--navy);opacity:.3;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+.dp-clear:active{opacity:.7;background:var(--fade);}
+
+/* STATUS BTN */
+.cell{text-align:center;padding:7px 3px;vertical-align:middle;}
+.s-btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-height:38px;min-width:44px;padding:5px 2px;border-radius:6px;border:1.5px solid var(--fade);background:transparent;cursor:pointer;font-family:var(--mono);color:rgba(27,45,91,.32);user-select:none;}
+.s-btn:active{opacity:.65;}
+.s-btn.on-ns{border-color:var(--navy);background:rgba(27,45,91,.05);color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);}
+.s-btn.on-wip{border-color:var(--amber);background:var(--amber-bg);color:var(--amber);}
+.s-btn.on-done{border-color:var(--green);background:var(--green-bg);color:var(--green);}
+.s-icon{font-size:13px;line-height:1;}
+.s-lbl{font-size:8px;letter-spacing:.05em;text-transform:uppercase;line-height:1;}
+
+/* ADD */
+.add-wrap{max-width:700px;margin:1rem auto 0;display:flex;gap:8px;padding:0 .6rem;}
+.add-inp{flex:1;padding:0 14px;height:48px;border:1.5px solid var(--fade);border-radius:6px;background:transparent;font-family:var(--mono);font-size:15px;color:var(--navy);outline:none;}
+.add-inp:focus{border-color:var(--navy);}
+.add-inp::placeholder{color:var(--navy);opacity:.35;}
+.add-btn{padding:0 18px;height:48px;background:none;border:1.5px solid var(--navy);border-radius:6px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);cursor:pointer;white-space:nowrap;}
+.add-btn:active{background:var(--navy);color:var(--cream);}
+
+/* FOOTER */
+.footer{text-align:center;padding:1.4rem;border-top:1.5px solid var(--navy);font-family:var(--serif);font-size:clamp(13px,3vw,16px);color:var(--navy);margin-top:auto;}
+.footer em{font-style:italic;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1><span class="script">Rafael's</span><span class="blk">Task</span></h1>
+    <div class="prog-wrap">
+      <div class="prog-row"><span id="prog-txt">0 / 0 done</span><span id="prog-pct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- PAGE NAV -->
+  <div class="page-nav">
+    <button class="nav-btn" id="prev-btn" disabled data-action="prev">&#8592; Prev</button>
+    <div class="tabs-wrap" id="page-tabs"></div>
+    <button class="add-pg-btn" id="add-page-btn" data-action="add-page">+ Page</button>
+    <button class="nav-btn" id="next-btn" data-action="next">Next &#8594;</button>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg-item"><div class="pip pip-ns"></div>Hasn't started</div>
+    <div class="leg-item"><div class="pip pip-wip"></div>In progress</div>
+    <div class="leg-item"><div class="pip pip-done"></div>Done</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th style="text-align:left;padding-left:8px;">Task</th>
+        <th>Hasn't<br>Started</th>
+        <th>In<br>Progress</th>
+        <th>Done</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="add-wrap">
+      <input class="add-inp" id="new-task" placeholder="Add a new task..." maxlength="80" type="text"/>
+      <button class="add-btn" id="add-task-btn" data-action="add-task">Add</button>
+    </div>
+  </div>
+
+  <div class="footer">remember, <em>consistency</em> over perfection.</div>
+</div>
+
+<script>
+// ── SOUND ──
+function playPop(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='sine';
+    o.frequency.setValueAtTime(600,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.05);
+    g.gain.setValueAtTime(0.3,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime+0.15);
+  }catch(e){}
+}
+function playDone(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach((f,i)=>{
+      const o=ctx.createOscillator();
+      const g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.value=f;
+      g.gain.setValueAtTime(0.2,ctx.currentTime+i*0.1);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.1+0.2);
+      o.start(ctx.currentTime+i*0.1);
+      o.stop(ctx.currentTime+i*0.1+0.2);
+    });
+  }catch(e){}
+}
+function playDelete(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='sine';
+    o.frequency.setValueAtTime(400,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+0.15);
+    g.gain.setValueAtTime(0.25,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime+0.2);
+  }catch(e){}
+}
+
+// ── STATE ──
+let S=JSON.parse(localStorage.getItem('rt6')||'null')||{
+  page:0,
+  pages:[{name:'Page 1',tasks:[
+    'Wake up at 7AM','Morning stretches','Declutter space','Read a bit',
+    'Add to savings','Eat fruits & veggies','Get moving','Finish skincare',
+    'Write in journal','Sleep before 11PM'
+  ]}],
+  status:{},due:{}
+};
+
+function save(){try{localStorage.setItem('rt6',JSON.stringify(S));}catch(e){}}
+function getStatus(t){return S.status[S.page+'_'+t]||'ns';}
+function setStatus(t,v){S.status[S.page+'_'+t]=v;save();render();}
+function getDue(t){return S.due[S.page+'_'+t]||'';}
+function setDue(t,v){if(v)S.due[S.page+'_'+t]=v;else delete S.due[S.page+'_'+t];save();render();}
+function isLate(d){if(!d)return false;const t=new Date();t.setHours(0,0,0,0);return new Date(d)<t;}
+function fmtDate(d){if(!d)return '';return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── RENDER ──
+function render(){
+  const p=S.page, tasks=S.pages[p].tasks;
+
+  // page tabs with delete button
+  const tabsEl=document.getElementById('page-tabs');
+  tabsEl.innerHTML='';
+  S.pages.forEach((pg,i)=>{
+    const grp=document.createElement('div');
+    grp.className='tab-group'+(i===p?' on':'');
+
+    const t=document.createElement('button');
+    t.className='tab';
+    t.textContent=pg.name;
+    t.dataset.action='goto-page';
+    t.dataset.pi=i;
+
+    const x=document.createElement('button');
+    x.className='tab-del';
+    x.innerHTML='&#215;';
+    x.dataset.action='del-page';
+    x.dataset.pi=i;
+    x.title='Delete page';
+
+    grp.appendChild(t);
+    // only show delete if more than 1 page
+    if(S.pages.length>1) grp.appendChild(x);
+    tabsEl.appendChild(grp);
+  });
+
+  document.getElementById('prev-btn').disabled=p===0;
+  document.getElementById('next-btn').disabled=p===S.pages.length-1;
+
+  const done=tasks.filter((_,ti)=>getStatus(ti)==='done').length;
+  const total=tasks.length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-txt').textContent=done+' / '+total+' done';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+
+  const tbody=document.getElementById('tbody');
+  if(!tasks.length){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:2.5rem;opacity:.38;font-size:13px;">No tasks yet — add one below</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML='';
+  tasks.forEach((task,ti)=>{
+    const cur=getStatus(ti);
+    const due=getDue(ti);
+    const late=isLate(due)&&cur!=='done';
+    const pid='dp_'+ti;
+    const tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td class="t-name">'
+      +'<div class="t-row">'
+      +'<span class="t-text">'+(ti+1)+'. '+escHtml(task)+'</span>'
+      +'<button class="ico due-ico'+(due?(late?' late':' set'):'')+'" data-action="toggle-dp" data-id="'+pid+'">&#x1F4C5;</button>'
+      +'<button class="ico del-ico" data-action="del" data-ti="'+ti+'">&#215;</button>'
+      +'</div>'
+      +(due?'<div class="due-chip'+(late?' late':'')+'">due '+fmtDate(due)+(late?' · overdue':'')+'</div>':'')
+      +'<div class="dp-wrap" id="'+pid+'">'
+      +'<input class="dp-inp" type="date" value="'+due+'" data-action="set-due" data-ti="'+ti+'"/>'
+      +(due?'<button class="dp-clear" data-action="clear-due" data-ti="'+ti+'">&#215;</button>':'')
+      +'</div>'
+      +'</td>'
+      +'<td class="cell"><button class="s-btn'+(cur==='ns'?' on-ns':'')+'" data-action="status" data-ti="'+ti+'" data-val="ns"><span class="s-icon">&#9675;</span><span class="s-lbl">Not started</span></button></td>'
+      +'<td class="cell"><button class="s-btn'+(cur==='wip'?' on-wip':'')+'" data-action="status" data-ti="'+ti+'" data-val="wip"><span class="s-icon">&#9681;</span><span class="s-lbl">In progress</span></button></td>'
+      +'<td class="cell"><button class="s-btn'+(cur==='done'?' on-done':'')+'" data-action="status" data-ti="'+ti+'" data-val="done"><span class="s-icon">&#9679;</span><span class="s-lbl">Done</span></button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── EVENTS ──
+document.addEventListener('click',function(e){
+  const el=e.target.closest('[data-action]');
+  if(!el) return;
+  const action=el.dataset.action;
+
+  if(action==='status'){
+    const val=el.dataset.val;
+    if(val==='done') playDone(); else playPop();
+    setStatus(+el.dataset.ti, val);
+  }
+  else if(action==='del'){
+    playDelete();
+    if(confirm('Remove this task?')){S.pages[S.page].tasks.splice(+el.dataset.ti,1);save();render();}
+  }
+  else if(action==='del-page'){
+    const i=+el.dataset.pi;
+    if(S.pages.length<=1) return;
+    playDelete();
+    if(confirm('Delete "'+S.pages[i].name+'"?')){
+      S.pages.splice(i,1);
+      if(S.page>=S.pages.length) S.page=S.pages.length-1;
+      save(); render();
+    }
+  }
+  else if(action==='toggle-dp'){
+    playPop();
+    const dp=document.getElementById(el.dataset.id);
+    if(!dp) return;
+    const opening=!dp.classList.contains('open');
+    document.querySelectorAll('.dp-wrap.open').forEach(x=>x.classList.remove('open'));
+    if(opening){dp.classList.add('open');setTimeout(()=>dp.querySelector('.dp-inp').focus(),60);}
+  }
+  else if(action==='clear-due'){ playPop(); setDue(+el.dataset.ti,''); }
+  else if(action==='add-task'){ doAddTask(); }
+  else if(action==='add-page'){
+    playPop();
+    S.pages.push({name:'Page '+(S.pages.length+1),tasks:[]});
+    S.page=S.pages.length-1;
+    save(); render();
+  }
+  else if(action==='prev'){ playPop(); if(S.page>0){S.page--;save();render();} }
+  else if(action==='next'){ playPop(); if(S.page<S.pages.length-1){S.page++;save();render();} }
+  else if(action==='goto-page'){ playPop(); S.page=+el.dataset.pi; save(); render(); }
+});
+
+document.addEventListener('change',function(e){
+  const el=e.target.closest('[data-action="set-due"]');
+  if(el){playPop();setDue(+el.dataset.ti,el.value);}
+});
+
+document.getElementById('new-task').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();doAddTask();}
+});
+
+function doAddTask(){
+  const inp=document.getElementById('new-task');
+  const text=inp.value.trim();
+  if(!text) return;
+  playPop();
+  S.pages[S.page].tasks.push(text);
+  inp.value=''; inp.blur();
+  save(); render();
+}
+
+render();
+</script>
+</body>
+</html>
